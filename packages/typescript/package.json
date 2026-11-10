@@ -1,0 +1,57 @@
+{
+  "name": "mcp-google-health",
+  "version": "0.0.0",
+  "description": "MCP server for the Google Health API: every Fitbit and Pixel Watch data type, paired devices, exercise TCX export, profile, settings, and writes.",
+  "keywords": [
+    "fitbit",
+    "fitbit-air",
+    "google-health",
+    "health",
+    "mcp",
+    "model-context-protocol",
+    "pixel-watch"
+  ],
+  "homepage": "https://github.com/amitray007/mcp-google-health#readme",
+  "bugs": {
+    "url": "https://github.com/amitray007/mcp-google-health/issues"
+  },
+  "license": "MIT",
+  "author": "Amit Ray (https://github.com/amitray007)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amitray007/mcp-google-health.git",
+    "directory": "packages/typescript"
+  },
+  "bin": {
+    "mcp-google-health": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "spec",
+    "!dist/**/*.test.*"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "check": "oxlint && tsc --noEmit && vitest run --coverage && knip",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-v8": "5.0.5",
+    "knip": "6.42.1",
+    "oxlint": "1.89.0",
+    "oxlint-tsgolint": "7.0.2004",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

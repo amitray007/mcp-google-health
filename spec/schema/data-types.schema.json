@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Data type catalog",
+  "type": "object",
+  "required": ["source", "dataTypes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "dataTypes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "kind", "scope"],
+        "additionalProperties": false,
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "kind": {
+            "enum": ["Interval", "Sample", "Daily", "Session", "Food"]
+          },
+          "scope": {
+            "type": "string",
+            "pattern": "^[a-z_]+$"
+          },
+          "operations": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "list",
+                "get",
+                "reconcile",
+                "rollUp",
+                "dailyRollUp",
+                "create",
+                "patch",
+                "batchDelete"
+              ]
+            }
+          },
+          "beta": {
+            "const": true
+          }
+        }
+      }
+    }
+  }
+}

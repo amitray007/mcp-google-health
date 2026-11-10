@@ -1,6 +1,57 @@
 [tools]
 node = "24"
 pnpm = "12.14.0"
+python = "3.13"
+uv = "0.13.7"
 
 [settings]
 lockfile = true
+
+[tasks.sync-spec]
+description = "Copy spec/ into both packages"
+run = "node scripts/sync-spec.ts"
+
+[tasks."check:spec"]
+description = "Validate the shared spec and repo scripts"
+depends = ["sync-spec"]
+run = [
+  "pnpm exec oxfmt --check",
+  "pnpm exec oxlint",
+  "pnpm exec tsc --noEmit -p tsconfig.json",
+  "pnpm exec vitest run --project spec",
+  "node scripts/check-versions.ts",
+]
+
+[tasks."check:ts"]
+description = "Format, lint, typecheck, test, and Knip the TypeScript package"
+depends = ["sync-spec"]
+dir = "packages/typescript"
+run = "pnpm check"
+
+[tasks."check:py"]
+description = "Format, lint, typecheck, and test the Python package"
+depends = ["sync-spec"]
+dir = "packages/python"
+run = [
+  "uv run --locked ruff format --check",
+  "uv run --locked ruff check",
+  "uv run --locked pyright",
+  "uv run --locked pytest",
+]
+
+[tasks.build]
+description = "Build the npm tarball and the Python wheel and sdist"
+depends = ["sync-spec"]
+run = [
+  "pnpm --dir packages/typescript build",
+  "uv build --project packages/python --out-dir packages/python/dist",
+]
+
+[tasks."test:e2e"]
+description = "Run both servers over stdio against a fake Google Health API"
+depends = ["build"]
+run = "pnpm exec vitest run --project e2e"
+
+[tasks.check]
+description = "Every check CI runs"
+depends = ["check:spec", "check:ts", "check:py", "test:e2e"]

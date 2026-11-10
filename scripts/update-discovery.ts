@@ -1,10 +1,11 @@
-// Refreshes src/discovery.json from Google's discovery documents.
+// Refreshes spec/discovery.json from Google's discovery documents.
 // Run: node scripts/update-discovery.ts
 import { writeFile } from "node:fs/promises";
 import { z } from "zod";
 
 const discoverySchema = z.object({
   revision: z.string(),
+  auth: z.object({ oauth2: z.object({ scopes: z.record(z.string(), z.unknown()) }) }),
   schemas: z.record(
     z.string(),
     z.looseObject({ properties: z.record(z.string(), z.unknown()).optional() }),
@@ -23,10 +24,11 @@ const fields = (doc: Discovery) => Object.keys(doc.schemas["DataPoint"]?.propert
 const snapshot = {
   revision: beta.revision,
   v4DataPointFields: fields(stable),
+  scopes: Object.keys(stable.auth.oauth2.scopes),
   schemas: beta.schemas,
 };
 await writeFile(
-  new URL("../src/discovery.json", import.meta.url),
+  new URL("../spec/discovery.json", import.meta.url),
   `${JSON.stringify(snapshot, null, 2)}\n`,
 );
 console.log(`Saved discovery revision ${snapshot.revision}.`);

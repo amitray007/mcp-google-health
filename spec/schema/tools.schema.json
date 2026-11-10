@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Tool contract",
+  "type": "object",
+  "required": ["server", "tools"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "server": {
+      "type": "object",
+      "required": ["name", "instructions"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "instructions": {
+          "type": "string"
+        }
+      }
+    },
+    "$defs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/tool"
+      }
+    }
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "required": ["name", "description", "annotations", "inputSchema"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["local"]
+        },
+        {
+          "required": ["request"]
+        }
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "annotations": {
+          "type": "object",
+          "required": ["readOnlyHint", "openWorldHint"],
+          "additionalProperties": false,
+          "properties": {
+            "readOnlyHint": {
+              "type": "boolean"
+            },
+            "destructiveHint": {
+              "type": "boolean"
+            },
+            "openWorldHint": {
+              "type": "boolean"
+            }
+          }
+        },
+        "inputSchema": {
+          "type": "object",
+          "required": ["type", "properties", "required", "additionalProperties"],
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "additionalProperties": {
+              "const": false
+            }
+          }
+        },
+        "local": {
+          "enum": ["listDataTypes", "describeSchema"]
+        },
+        "request": {
+          "type": "object",
+          "required": ["method", "path"],
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "enum": ["GET", "POST", "PATCH"]
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^users/me/[A-Za-z0-9{}/:._-]+$"
+            },
+            "versioned": {
+              "type": "boolean"
+            },
+            "query": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/value"
+              }
+            },
+            "body": {
+              "$ref": "#/$defs/value"
+            }
+          }
+        },
+        "response": {
+          "type": "object",
+          "required": ["saveField", "pathArg"],
+          "additionalProperties": false,
+          "properties": {
+            "saveField": {
+              "type": "string"
+            },
+            "pathArg": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["arg"],
+          "additionalProperties": false,
+          "properties": {
+            "arg": {
+              "type": "string"
+            },
+            "format": {
+              "enum": ["sourceFamily", "civilDateTime", "dataPointNames"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "not": {
+            "required": ["arg"]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/value"
+          }
+        },
+        {
+          "type": ["string", "number", "boolean"]
+        }
+      ]
+    }
+  }
+}

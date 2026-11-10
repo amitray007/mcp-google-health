@@ -1,0 +1,324 @@
+{
+  "$schema": "./schema/data-types.schema.json",
+  "source": "https://developers.google.com/health/data-types",
+  "dataTypes": [
+    {
+      "slug": "active-energy-burned",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "active-minutes",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "active-zone-minutes",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "activity-level",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "altitude",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "basal-energy-burned",
+      "kind": "Interval",
+      "scope": "activity_and_fitness"
+    },
+    {
+      "slug": "blood-glucose",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "get", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "body-fat",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": [
+        "list",
+        "get",
+        "reconcile",
+        "rollUp",
+        "dailyRollUp",
+        "create",
+        "patch",
+        "batchDelete"
+      ]
+    },
+    {
+      "slug": "calories-in-heart-rate-zone",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "core-body-temperature",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "get", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "daily-heart-rate-variability",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-heart-rate-zones",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-oxygen-saturation",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-respiratory-rate",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-resting-heart-rate",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-sleep-temperature-derivations",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "daily-vo2-max",
+      "kind": "Daily",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "distance",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "electrocardiogram",
+      "kind": "Session",
+      "scope": "ecg",
+      "operations": ["list"]
+    },
+    {
+      "slug": "exercise",
+      "kind": "Session",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "get", "reconcile", "create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "floors",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "food",
+      "kind": "Food",
+      "scope": "nutrition",
+      "operations": ["list", "get"]
+    },
+    {
+      "slug": "food-measurement-unit",
+      "kind": "Food",
+      "scope": "nutrition",
+      "operations": ["list", "get"]
+    },
+    {
+      "slug": "heart-rate",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "heart-rate-variability",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "heart-rate-variability-personal-range",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["dailyRollUp"]
+    },
+    {
+      "slug": "height",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "get", "reconcile", "create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "hydration-log",
+      "kind": "Session",
+      "scope": "nutrition",
+      "operations": [
+        "list",
+        "get",
+        "reconcile",
+        "rollUp",
+        "dailyRollUp",
+        "create",
+        "patch",
+        "batchDelete"
+      ]
+    },
+    {
+      "slug": "irregular-rhythm-notification",
+      "kind": "Session",
+      "scope": "irn",
+      "operations": ["list"]
+    },
+    {
+      "slug": "menstrual-period",
+      "kind": "Interval",
+      "scope": "reproductive_health",
+      "operations": ["create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "moods",
+      "kind": "Sample",
+      "scope": "mindfulness",
+      "operations": ["create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "nutrition-log",
+      "kind": "Session",
+      "scope": "nutrition",
+      "operations": [
+        "list",
+        "get",
+        "reconcile",
+        "rollUp",
+        "dailyRollUp",
+        "create",
+        "patch",
+        "batchDelete"
+      ]
+    },
+    {
+      "slug": "ovulation-test",
+      "kind": "Sample",
+      "scope": "reproductive_health",
+      "operations": ["create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "oxygen-saturation",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "respiratory-rate-sleep-summary",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "resting-heart-rate-personal-range",
+      "kind": "Daily",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["dailyRollUp"]
+    },
+    {
+      "slug": "run-vo2-max",
+      "kind": "Sample",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "sedentary-period",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "skin-temperature-sensors",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": ["list"],
+      "beta": true
+    },
+    {
+      "slug": "sleep",
+      "kind": "Session",
+      "scope": "sleep",
+      "operations": ["list", "get", "reconcile", "create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "steps",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "swim-lengths-data",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "symptoms",
+      "kind": "Sample",
+      "scope": "logged_symptoms",
+      "operations": ["create", "patch", "batchDelete"]
+    },
+    {
+      "slug": "time-in-heart-rate-zone",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile", "rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "total-calories",
+      "kind": "Interval",
+      "scope": "activity_and_fitness",
+      "operations": ["rollUp", "dailyRollUp"]
+    },
+    {
+      "slug": "vo2-max",
+      "kind": "Sample",
+      "scope": "activity_and_fitness",
+      "operations": ["list", "reconcile"]
+    },
+    {
+      "slug": "weight",
+      "kind": "Sample",
+      "scope": "health_metrics_and_measurements",
+      "operations": [
+        "list",
+        "get",
+        "reconcile",
+        "rollUp",
+        "dailyRollUp",
+        "create",
+        "patch",
+        "batchDelete"
+      ]
+    }
+  ]
+}

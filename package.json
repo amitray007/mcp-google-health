@@ -1,61 +1,21 @@
 {
-  "name": "mcp-google-health",
-  "version": "0.1.0",
-  "description": "MCP server for the Google Health API: every Fitbit and Pixel Watch data type, paired devices, exercise TCX export, profile, settings, and writes.",
-  "keywords": [
-    "fitbit",
-    "fitbit-air",
-    "google-health",
-    "health",
-    "mcp",
-    "model-context-protocol",
-    "pixel-watch"
-  ],
-  "homepage": "https://github.com/amitray007/google-health-mcp#readme",
-  "bugs": {
-    "url": "https://github.com/amitray007/google-health-mcp/issues"
-  },
-  "license": "MIT",
-  "author": "Amit Ray (https://github.com/amitray007)",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amitray007/google-health-mcp.git"
-  },
-  "bin": {
-    "mcp-google-health": "dist/src/cli.js"
-  },
-  "files": [
-    "dist/src",
-    "dist/package.json",
-    "!dist/src/**/*.test.js",
-    "README.md",
-    "LICENSE"
-  ],
+  "name": "mcp-google-health-repo",
+  "private": true,
   "type": "module",
   "scripts": {
-    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
-    "check": "oxfmt --check && oxlint && tsc --noEmit && vitest run && knip",
+    "check": "mise run check",
     "format": "oxfmt",
-    "test": "vitest run",
-    "update-discovery": "node scripts/update-discovery.ts",
-    "prepack": "pnpm build"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/server": "2.3.1",
-    "google-auth-library": "11.3.3",
-    "zod": "4.6.7"
+    "update-discovery": "node scripts/update-discovery.ts"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.3.1",
     "@types/node": "24.19.2",
-    "knip": "6.42.1",
+    "ajv": "8.20.0",
     "oxfmt": "0.74.0",
     "oxlint": "1.89.0",
     "oxlint-tsgolint": "7.0.2004",
     "typescript": "7.0.2",
-    "vitest": "5.0.5"
-  },
-  "engines": {
-    "node": ">=22.12"
+    "vitest": "5.0.5",
+    "zod": "4.6.7"
   }
 }

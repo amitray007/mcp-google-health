@@ -1,0 +1,203 @@
+{
+  "$schema": "../schema/conformance.schema.json",
+  "cases": [
+    {
+      "name": "path traversal in id",
+      "tool": "get_data_point",
+      "arguments": {
+        "dataType": "exercise",
+        "dataPointId": "../../x"
+      }
+    },
+    {
+      "name": "slash in id",
+      "tool": "get_paired_device",
+      "arguments": {
+        "deviceId": "a/b"
+      }
+    },
+    {
+      "name": "uppercase data type",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "Steps"
+      }
+    },
+    {
+      "name": "data type with slash",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps/../x"
+      }
+    },
+    {
+      "name": "missing required",
+      "tool": "list_data_points",
+      "arguments": {}
+    },
+    {
+      "name": "unknown argument",
+      "tool": "get_profile",
+      "arguments": {
+        "extra": 1
+      }
+    },
+    {
+      "name": "bad source family",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "dataSourceFamily": "everything"
+      }
+    },
+    {
+      "name": "bad api version",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "apiVersion": "v5"
+      }
+    },
+    {
+      "name": "page size too big",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "pageSize": 10001
+      }
+    },
+    {
+      "name": "page size zero",
+      "tool": "list_paired_devices",
+      "arguments": {
+        "pageSize": 0
+      }
+    },
+    {
+      "name": "non-integer page size",
+      "tool": "list_paired_devices",
+      "arguments": {
+        "pageSize": 1.5
+      }
+    },
+    {
+      "name": "bad timestamp",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startTime": "yesterday",
+        "endTime": "2026-11-02T00:00:00Z",
+        "windowSize": "3600s"
+      }
+    },
+    {
+      "name": "bad window",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startTime": "2026-11-01T00:00:00Z",
+        "endTime": "2026-11-02T00:00:00Z",
+        "windowSize": "1h"
+      }
+    },
+    {
+      "name": "bad civil date",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "2026/11/01",
+        "endDate": "2026-11-08"
+      }
+    },
+    {
+      "name": "daily page size too big",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-08",
+        "pageSize": 91
+      }
+    },
+    {
+      "name": "empty delete list",
+      "tool": "delete_data_points",
+      "arguments": {
+        "dataType": "weight",
+        "dataPointIds": []
+      }
+    },
+    {
+      "name": "data point not object",
+      "tool": "create_data_point",
+      "arguments": {
+        "dataType": "weight",
+        "dataPoint": "70kg"
+      }
+    },
+    {
+      "name": "empty update mask",
+      "tool": "update_settings",
+      "arguments": {
+        "settings": {},
+        "updateMask": ""
+      }
+    },
+    {
+      "name": "empty schema name",
+      "tool": "describe_schema",
+      "arguments": {
+        "name": ""
+      }
+    },
+    {
+      "name": "dot id",
+      "tool": "get_data_point",
+      "arguments": {
+        "dataType": "exercise",
+        "dataPointId": "."
+      }
+    },
+    {
+      "name": "dot-dot id",
+      "tool": "get_paired_device",
+      "arguments": {
+        "deviceId": ".."
+      }
+    },
+    {
+      "name": "dot-dot in delete list",
+      "tool": "delete_data_points",
+      "arguments": {
+        "dataType": "weight",
+        "dataPointIds": ["ok", ".."]
+      }
+    },
+    {
+      "name": "dot-dot exercise id",
+      "tool": "export_exercise_tcx",
+      "arguments": {
+        "exerciseId": ".."
+      }
+    },
+    {
+      "name": "non-ASCII digits in civil date",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "٢٠٢٦-11-01",
+        "endDate": "2026-11-08"
+      }
+    },
+    {
+      "name": "non-ASCII digits in window",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startTime": "2026-11-01T00:00:00Z",
+        "endTime": "2026-11-02T00:00:00Z",
+        "windowSize": "３600s"
+      }
+    }
+  ]
+}

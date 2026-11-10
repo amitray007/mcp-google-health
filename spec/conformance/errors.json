@@ -1,0 +1,95 @@
+{
+  "$schema": "../schema/conformance.schema.json",
+  "cases": [
+    {
+      "name": "api error with status",
+      "tool": "get_settings",
+      "arguments": {},
+      "api": {
+        "status": 403,
+        "body": {
+          "error": {
+            "code": 403,
+            "status": "PERMISSION_DENIED",
+            "message": "Request had insufficient authentication scopes."
+          }
+        }
+      },
+      "expect": {
+        "text": "Google Health API PERMISSION_DENIED: Request had insufficient authentication scopes."
+      }
+    },
+    {
+      "name": "api error without status",
+      "tool": "get_settings",
+      "arguments": {},
+      "api": {
+        "status": 404,
+        "body": {
+          "error": {
+            "code": 404,
+            "message": "Not found."
+          }
+        }
+      },
+      "expect": {
+        "text": "Google Health API 404: Not found."
+      }
+    },
+    {
+      "name": "api error without json",
+      "tool": "get_profile",
+      "arguments": {},
+      "api": {
+        "status": 502,
+        "text": "<html>Bad gateway</html>"
+      },
+      "expect": {
+        "text": "Google Health API returned HTTP 502."
+      }
+    },
+    {
+      "name": "refresh token rejected",
+      "tool": "get_profile",
+      "arguments": {},
+      "token": {
+        "status": 400,
+        "body": {
+          "error": "invalid_grant",
+          "error_description": "Token has been expired or revoked."
+        }
+      },
+      "expect": {
+        "text": "Google sign-in failed: invalid_grant. Run the auth command again."
+      }
+    },
+    {
+      "name": "missing credentials",
+      "tool": "get_profile",
+      "arguments": {},
+      "credentials": "missing",
+      "expect": {
+        "text": "No Google Health credentials at {credentialsPath}. Run \"mcp-google-health auth\" first."
+      }
+    },
+    {
+      "name": "malformed credentials",
+      "tool": "get_profile",
+      "arguments": {},
+      "credentials": "malformed",
+      "expect": {
+        "text": "{credentialsPath} is not a Google authorized_user credentials file."
+      }
+    },
+    {
+      "name": "unknown schema",
+      "tool": "describe_schema",
+      "arguments": {
+        "name": "Nope"
+      },
+      "expect": {
+        "text": "No schema named Nope. Use a data type slug or schema name."
+      }
+    }
+  ]
+}
