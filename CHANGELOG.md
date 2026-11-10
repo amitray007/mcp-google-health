@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/amitray007/mcp-google-health/compare/v0.0.1...v0.0.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* keep release checks green after a version bump ([a18c71d](https://github.com/amitray007/mcp-google-health/commit/a18c71db5a9b6a051f6efdb3cd430449071108da))
+
 ## 0.0.1 (2026-11-10)
 
 
