@@ -3,9 +3,12 @@ name: Release
 # Release Please keeps a release PR open on main. Merging it tags vX.Y.Z, creates the GitHub
 # release, and publishes both packages. Every release bumps the patch version; put
 # `Release-As: X.Y.Z` in a commit body to choose a minor or major version.
+# To retry a failed publish, run this workflow from the release tag:
+#   gh workflow run release.yml --ref vX.Y.Z
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,6 +22,7 @@ env:
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -30,26 +34,40 @@ jobs:
       - id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
 
-  check:
+  # One place that decides whether this run publishes, and which tag.
+  target:
     needs: release-please
-    if: needs.release-please.outputs.created == 'true'
+    if: always() && (needs.release-please.outputs.created == 'true' || (github.event_name == 'workflow_dispatch' && github.ref_type == 'tag'))
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - id: tag
+        run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || needs.release-please.outputs.tag }}
+
+  check:
+    needs: target
     uses: ./.github/workflows/ci.yml
 
   build:
-    needs: [release-please, check]
+    needs: [target, check]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.release-please.outputs.tag }}
+          ref: ${{ needs.target.outputs.tag }}
           persist-credentials: false
       - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: ${{ env.MISE_VERSION }}
       - run: pnpm install --frozen-lockfile
       - name: Check that every version matches the tag
-        run: node scripts/check-versions.ts "${{ needs.release-please.outputs.tag }}"
+        run: node scripts/check-versions.ts "$TAG"
+        env:
+          TAG: ${{ needs.target.outputs.tag }}
       - run: mise run build
       - run: pnpm --dir packages/typescript pack --pack-destination ../../dist/npm
       - run: mkdir -p dist/python && cp packages/python/dist/* dist/python/
@@ -60,7 +78,7 @@ jobs:
           if-no-files-found: error
 
   npm:
-    needs: [release-please, build]
+    needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -81,7 +99,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   pypi:
-    needs: [release-please, build]
+    needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

@@ -1,10 +1,14 @@
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { help, parseCommand } from "./cli-options.ts";
 import { spec } from "./spec.ts";
 
 const exec = promisify(execFile);
+const { version } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version: string };
 afterEach(() => vi.unstubAllEnvs());
 describe("CLI arguments", () => {
   it.each([
@@ -90,7 +94,7 @@ describe("CLI arguments", () => {
       flag,
     ]);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("0.0.0");
+    expect(result.stdout).toContain(version);
   });
   it("exits with a useful error for an unknown command", async () => {
     await expect(

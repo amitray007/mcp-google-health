@@ -6,6 +6,7 @@
     "pnpm-lock.yaml",
     "packages/python/**",
     "**/spec/discovery.json",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    ".release-please-manifest.json"
   ]
 }
