@@ -25,6 +25,7 @@ Auth options:
   --write                  Also request every write scope.
   --scope <scope>          Request an extra scope, such as mindfulness.readonly. Repeatable.
   --port <port>            Loopback port for the Google redirect. Default: a free port.
+  --credentials <file>     Where to save credentials. Default: the credentials path below.
 
 Credentials path: $GOOGLE_HEALTH_CREDENTIALS, else $GOOGLE_APPLICATION_CREDENTIALS,
 else ~/.config/mcp-google-health/credentials.json.`;
@@ -59,6 +60,7 @@ async function auth(argv: string[]): Promise<void> {
       write: { type: "boolean", default: false },
       scope: { type: "string", multiple: true, default: [] },
       port: { type: "string" },
+      credentials: { type: "string" },
     },
     strict: true,
   });
@@ -77,7 +79,7 @@ async function auth(argv: string[]): Promise<void> {
       openBrowser(url);
     },
   });
-  const path = credentialsPath();
+  const path = values.credentials ?? credentialsPath();
   await saveCredentials(path, credentials);
   console.error(`Saved Google Health credentials to ${path}.`);
 }

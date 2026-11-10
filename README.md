@@ -30,6 +30,7 @@ saves a refresh token to `~/.config/mcp-google-health/credentials.json` with mod
 - `--write` also requests every write scope.
 - `--scope <scope>` adds a scope, such as `mindfulness.readonly`. You can repeat it.
 - `--port <port>` fixes the loopback port.
+- `--credentials <file>` saves the credentials to another path.
 
 By default the command requests the nine read scopes: activity and fitness, ECG, health metrics,
 irregular rhythm notifications, exercise location, nutrition, profile, settings, and sleep.
