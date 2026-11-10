@@ -2,13 +2,14 @@ import { execFile } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { help, parseCommand } from "./cli-options.ts";
 import { spec } from "./spec.ts";
 
 const exec = promisify(execFile);
-const { version } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-) as { version: string };
+const { version } = z
+  .object({ version: z.string() })
+  .parse(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")));
 afterEach(() => vi.unstubAllEnvs());
 describe("CLI arguments", () => {
   it.each([
