@@ -1,6 +1,6 @@
 {
   "name": "mcp-google-health",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "MCP server for the Google Health API: every Fitbit and Pixel Watch data type, paired devices, exercise TCX export, profile, settings, and writes.",
   "keywords": [
     "fitbit",
