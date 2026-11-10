@@ -521,7 +521,8 @@
           "windowSizeDays": {
             "type": "integer",
             "minimum": 1,
-            "description": "Days per window. Default 1."
+            "description": "Days per window. Default 1.",
+            "maximum": 90
           },
           "dataSourceFamily": {
             "$ref": "#/$defs/dataSourceFamily"

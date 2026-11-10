@@ -12,11 +12,11 @@ export function createHealthApi(
 ): HealthApi {
   return async ({ method, url, body }) => {
     const token = await tokenProvider();
-    const headers = new Headers({ authorization: `Bearer ${token}` });
-    if (body !== undefined) headers.set("content-type", "application/json");
     let response: Response;
     let text: string;
     try {
+      const headers = new Headers({ authorization: `Bearer ${token}` });
+      if (body !== undefined) headers.set("content-type", "application/json");
       response = await fetchImpl(url, {
         method,
         headers,

@@ -4,9 +4,8 @@ import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Protocol, cast
+from typing import cast
 
-from jsonschema import Draft202012Validator
 from mcp import types
 from mcp.server.context import ServerRequestContext
 from mcp.server.lowlevel import Server
@@ -19,10 +18,7 @@ from mcp_google_health.json_types import Json, JsonObject, compact_json, object_
 from mcp_google_health.local_tools import describe_schema, list_data_types
 from mcp_google_health.request import build_request
 from mcp_google_health.spec import Bundle, ToolSpec, load_bundle
-
-
-class InputValidator(Protocol):
-    def is_valid(self, instance: Json) -> bool: ...
+from mcp_google_health.validation import input_validator, normalize_numbers
 
 
 @asynccontextmanager
@@ -68,10 +64,7 @@ async def execute(tool: ToolSpec, arguments: JsonObject, bundle: Bundle, api: He
 
 def create_server(api: HealthApi, bundle: Bundle | None = None) -> Server[None]:
     spec = load_bundle() if bundle is None else bundle
-    validators = {
-        tool.name: cast(InputValidator, Draft202012Validator(tool.input_schema))
-        for tool in spec.tools.tools
-    }
+    validators = {tool.name: input_validator(tool.input_schema) for tool in spec.tools.tools}
 
     async def list_tools(
         _ctx: ServerRequestContext[None], _params: types.PaginatedRequestParams | None
@@ -82,7 +75,7 @@ def create_server(api: HealthApi, bundle: Bundle | None = None) -> Server[None]:
         _ctx: ServerRequestContext[None], params: types.CallToolRequestParams
     ) -> types.CallToolResult:
         tool = spec.by_name.get(params.name)
-        arguments = cast(JsonObject, params.arguments or {})
+        arguments = cast(JsonObject, normalize_numbers(cast(Json, params.arguments or {})))
         message: str
         if tool is None:
             message = f"Unknown tool {params.name}."

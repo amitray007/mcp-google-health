@@ -42,7 +42,7 @@ class HealthApi:
         except httpx.HTTPError:
             raise HealthError("Google Health API request failed.") from None
         if not response.is_success:
-            raise HealthError(self.tokens.redact_message(str(api_failure(response))))
+            raise HealthError(self.tokens.redact_message(str(api_failure(response)), token))
         try:
             return parse_json(response.text) if response.text else {}
         except ValueError:

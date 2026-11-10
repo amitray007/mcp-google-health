@@ -198,6 +198,49 @@
         "endTime": "2026-11-02T00:00:00Z",
         "windowSize": "３600s"
       }
+    },
+    {
+      "name": "trailing newline in data type",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps\n"
+      }
+    },
+    {
+      "name": "trailing newline in id",
+      "tool": "get_paired_device",
+      "arguments": {
+        "deviceId": "abc\n"
+      }
+    },
+    {
+      "name": "trailing newline in civil date",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "2026-11-01\n",
+        "endDate": "2026-11-08"
+      }
+    },
+    {
+      "name": "trailing newline in window",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startTime": "2026-11-01T00:00:00Z",
+        "endTime": "2026-11-02T00:00:00Z",
+        "windowSize": "3600s\n"
+      }
+    },
+    {
+      "name": "window size days too big",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "2026-01-01",
+        "endDate": "2026-03-01",
+        "windowSizeDays": 91
+      }
     }
   ]
 }

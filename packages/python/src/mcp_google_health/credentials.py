@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 import time
 from collections.abc import Callable, Mapping
 from pathlib import Path
@@ -14,6 +15,10 @@ from mcp_google_health.errors import HealthError
 from mcp_google_health.json_types import compact_json, object_value, parse_json
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"  # noqa: S105 - public OAuth endpoint
+
+
+# An access token must be safe in an HTTP header.
+VISIBLE_ASCII = re.compile(r"[\x21-\x7e]+")
 
 
 class AuthorizedUser(BaseModel):
@@ -91,12 +96,12 @@ class TokenProvider:
         async with self._lock:
             if self._token is not None and self.clock() < self._expires_at - 60:
                 return self._token
-            if self._credentials is None:
-                self._credentials = load_credentials(self.path)
+            # Reload so a fresh `auth` takes effect without restarting the server.
+            self._credentials = load_credentials(self.path)
             return await self._refresh(self._credentials)
 
-    def redact_message(self, message: str) -> str:
-        secrets = [self._token] if self._token else []
+    def redact_message(self, message: str, *extra: str) -> str:
+        secrets = [secret for secret in (self._token, *extra) if secret]
         if self._credentials is not None:
             secrets.extend([self._credentials.client_secret, self._credentials.refresh_token])
         for secret in sorted(secrets, key=len, reverse=True):
@@ -122,7 +127,11 @@ class TokenProvider:
             data = object_value(parse_json(response.text))
             token = data["access_token"]
             expires_in = data["expires_in"]
-            if not isinstance(token, str) or not token or isinstance(expires_in, bool):
+            if (
+                not isinstance(token, str)
+                or not VISIBLE_ASCII.fullmatch(token)
+                or isinstance(expires_in, bool)
+            ):
                 raise ValueError("Invalid token response.")
             if not isinstance(expires_in, (int, float)) or expires_in <= 0:
                 raise ValueError("Invalid token expiry.")

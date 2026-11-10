@@ -148,6 +148,22 @@ describe("tool contract", () => {
     }
   });
 
+  it("bounds every integer input within the range both languages represent exactly", () => {
+    const integers: string[] = [];
+    const visit = (schema: unknown, path: string): void => {
+      if (!schema || typeof schema !== "object") return;
+      const node = schema as Record<string, unknown>;
+      if (node["type"] === "integer") {
+        integers.push(path);
+        expect(node["maximum"], path).toBeLessThanOrEqual(Number.MAX_SAFE_INTEGER);
+        expect(node["minimum"], path).toBeGreaterThanOrEqual(Number.MIN_SAFE_INTEGER);
+      }
+      for (const [key, child] of Object.entries(node)) visit(child, `${path}.${key}`);
+    };
+    for (const tool of tools.tools) visit(tool.inputSchema, tool.name);
+    expect(integers.length).toBeGreaterThan(0);
+  });
+
   it("bundles with no references left", () => {
     expect(JSON.stringify(tools)).not.toContain('"$ref"');
   });
