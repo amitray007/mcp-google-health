@@ -111,5 +111,5 @@ installs the packed npm tarball and the built wheel and runs them.
 
 Release Please keeps a release PR open with the next version and changelog. Every release bumps
 the patch version. To release a minor or major version, put `Release-As: X.Y.Z` in a commit
-body. Merging the release PR tags the version and publishes both packages: npm with provenance,
-PyPI through Trusted Publishing.
+body. Merging the release PR tags the version and publishes both packages through
+Trusted Publishing (GitHub OIDC), with no stored tokens.

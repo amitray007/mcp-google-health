@@ -106,6 +106,8 @@ jobs:
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
+      # npm publishes through the package's trusted publisher (GitHub OIDC, environment npm);
+      # no token. The registry refuses bypass-2FA tokens for this package.
       - name: Publish unless this version is already on npm
         run: |
           tarball=$(ls dist/npm/*.tgz)
@@ -115,8 +117,6 @@ jobs:
           else
             npm publish "$tarball" --access public --provenance
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   pypi:
     needs: build
