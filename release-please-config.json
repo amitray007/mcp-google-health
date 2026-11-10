@@ -17,7 +17,7 @@
         {
           "type": "toml",
           "path": "packages/python/uv.lock",
-          "jsonpath": "$.package[?(@.name=='mcp-google-health')].version"
+          "jsonpath": "$.package[?(@.name.value=='mcp-google-health')].version"
         }
       ]
     }

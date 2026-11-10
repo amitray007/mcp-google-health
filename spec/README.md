@@ -63,6 +63,14 @@ Value expressions:
 in the response's `saveField` (empty string when missing) to that path as UTF-8. Return
 `{"outputPath": <path>, "bytes": <UTF-8 byte length>}`. Otherwise return the response.
 
+### Input validation
+
+Each implementation validates arguments against the tool's `inputSchema` as JSON Schema 2020-12
+before any request. Patterns use ECMA-262 semantics as JSON Schema requires: `$` matches only at
+the end of the string, and the spec writes digits as `[0-9]`, not `\d`. Python therefore
+translates `$` to `\Z`. Integral numbers such as `1.0` are sent as `1`, as JavaScript does. Every
+integer input has bounds within ±(2^53 - 1), so both languages hold the value exactly.
+
 ### Results and errors
 
 A successful tool returns one text content item: the JSON result with no extra whitespace. Tests
@@ -81,7 +89,12 @@ A failed tool returns `isError: true` and one text content item with the message
 | Credentials file is not a valid `authorized_user` file  | `<path> is not a Google authorized_user credentials file.`                    |
 | Arguments fail the input schema                         | Any message. The server must not call the API.                                |
 
-Messages never contain tokens, client secrets, or request headers.
+A token response counts as a failed refresh unless `access_token` is visible ASCII
+(`[\x21-\x7E]+`), so a token can never break an HTTP header.
+
+Messages never contain tokens, client secrets, or request headers. Implementations redact the
+access token of the failed request, the current token, the client secret, and the refresh token
+from any message built from a Google response.
 
 ## Runtime configuration
 
@@ -94,7 +107,8 @@ Messages never contain tokens, client secrets, or request headers.
 | `GOOGLE_HEALTH_TOKEN_URL`        | `https://oauth2.googleapis.com/token`          | Token endpoint for refresh, for tests.    |
 
 The server reads credentials on the first API call, not at startup, so `tools/list` works before
-sign-in. A failed load is retried on the next call.
+sign-in. It reads the file again before each token refresh, so a new `auth` takes effect without a
+restart.
 
 The credentials file is a Google `authorized_user` JSON:
 `{"type": "authorized_user", "client_id", "client_secret", "refresh_token"}`. The server

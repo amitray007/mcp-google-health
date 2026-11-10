@@ -3,7 +3,11 @@ import { z } from "zod";
 const failure = "Google sign-in failed. Run the auth command again.";
 const errorSchema = z.object({ error: z.string() });
 const tokenSchema = z.object({
-  access_token: z.string().min(1).optional(),
+  // A token must be safe in an HTTP header; anything else is a failed sign-in, not a header error.
+  access_token: z
+    .string()
+    .regex(/^[\x21-\x7E]+$/)
+    .optional(),
   expires_in: z.number().positive().optional(),
   refresh_token: z.string().min(1).optional(),
 });

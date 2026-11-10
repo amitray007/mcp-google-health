@@ -90,6 +90,35 @@
       "expect": {
         "text": "No schema named Nope. Use a data type slug or schema name."
       }
+    },
+    {
+      "name": "token response with a control character",
+      "tool": "get_profile",
+      "arguments": {},
+      "token": {
+        "status": 200,
+        "body": {
+          "access_token": "access\r\nX-Leak: 1",
+          "expires_in": 3600
+        }
+      },
+      "expect": {
+        "text": "Google sign-in failed. Run the auth command again."
+      }
+    },
+    {
+      "name": "token response without an access token",
+      "tool": "get_profile",
+      "arguments": {},
+      "token": {
+        "status": 200,
+        "body": {
+          "expires_in": 3600
+        }
+      },
+      "expect": {
+        "text": "Google sign-in failed. Run the auth command again."
+      }
     }
   ]
 }
