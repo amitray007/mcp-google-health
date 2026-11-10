@@ -3,12 +3,17 @@ name: Release
 # Release Please keeps a release PR open on main. Merging it tags vX.Y.Z, creates the GitHub
 # release, and publishes both packages. Every release bumps the patch version; put
 # `Release-As: X.Y.Z` in a commit body to choose a minor or major version.
-# To retry a failed publish, run this workflow from the release tag:
-#   gh workflow run release.yml --ref vX.Y.Z
+# To retry a failed publish: gh workflow run release.yml -f tag=vX.Y.Z
+# Each registry skips a version it already has.
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish, such as v0.0.2
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -37,7 +42,7 @@ jobs:
   # One place that decides whether this run publishes, and which tag.
   target:
     needs: release-please
-    if: always() && (needs.release-please.outputs.created == 'true' || (github.event_name == 'workflow_dispatch' && github.ref_type == 'tag'))
+    if: always() && (needs.release-please.outputs.created == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
@@ -45,14 +50,20 @@ jobs:
       - id: tag
         run: echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
         env:
-          TAG: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || needs.release-please.outputs.tag }}
+          TAG: ${{ inputs.tag || needs.release-please.outputs.tag }}
 
+  # A skipped release-please job on a manual run would skip everything after it without these
+  # explicit conditions.
   check:
     needs: target
+    if: ${{ !cancelled() && needs.target.result == 'success' }}
     uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ needs.target.outputs.tag }}
 
   build:
     needs: [target, check]
+    if: ${{ !cancelled() && needs.check.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -79,6 +90,7 @@ jobs:
 
   npm:
     needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -94,12 +106,21 @@ jobs:
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
-      - run: npm publish dist/npm/*.tgz --access public --provenance
+      - name: Publish unless this version is already on npm
+        run: |
+          tarball=$(ls dist/npm/*.tgz)
+          spec=$(tar -xOzf "$tarball" package/package.json | node -p "const p = JSON.parse(require('fs').readFileSync(0)); p.name + '@' + p.version")
+          if npm view "$spec" version >/dev/null 2>&1; then
+            echo "$spec is already published."
+          else
+            npm publish "$tarball" --access public --provenance
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   pypi:
     needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -114,3 +135,4 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           packages-dir: dist/python/
+          skip-existing: true
