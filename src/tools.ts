@@ -65,7 +65,7 @@ const points = (type: string) => `users/me/dataTypes/${type}/dataPoints`;
 
 export function createServer(api: HealthApi, version: string): McpServer {
   const server = new McpServer(
-    { name: "googlehealth-mcp", version },
+    { name: "mcp-google-health", version },
     {
       instructions:
         "Reads and writes Google Health (Fitbit, Pixel Watch) data through the Google Health API v4. Start with list_data_types, then list_data_points, reconcile_data_points, or the roll-up tools. Use describe_schema before a write.",

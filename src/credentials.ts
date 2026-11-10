@@ -30,7 +30,7 @@ export function credentialsPath(env: NodeJS.ProcessEnv = process.env): string {
   return (
     env["GOOGLE_HEALTH_CREDENTIALS"] ||
     env["GOOGLE_APPLICATION_CREDENTIALS"] ||
-    join(homedir(), ".config", "googlehealth-mcp", "credentials.json")
+    join(homedir(), ".config", "mcp-google-health", "credentials.json")
   );
 }
 
@@ -39,7 +39,7 @@ export async function loadCredentials(path: string): Promise<AuthorizedUser> {
   try {
     text = await readFile(path, "utf8");
   } catch {
-    throw new Error(`No Google Health credentials at ${path}. Run "googlehealth-mcp auth" first.`);
+    throw new Error(`No Google Health credentials at ${path}. Run "mcp-google-health auth" first.`);
   }
   const parsed = authorizedUserSchema.safeParse(JSON.parse(text));
   if (!parsed.success) throw new Error(`${path} is not a Google authorized_user credentials file.`);

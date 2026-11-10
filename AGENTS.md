@@ -1,6 +1,6 @@
-# googlehealth-mcp agent instructions
+# mcp-google-health agent instructions
 
-A stdio MCP server for the Google Health API v4, published to npm as `googlehealth-mcp`.
+A stdio MCP server for the Google Health API v4, published to npm as `mcp-google-health`.
 
 - Check: `pnpm check` (format, lint, typecheck, tests, Knip). Run it before each commit.
 - Tools pin Node and pnpm through mise. Run commands with `mise exec --` when the shell is not

@@ -14,11 +14,11 @@ import {
 import { readScopes, scopeUrl, writeScopes } from "./scopes.ts";
 import { createServer } from "./tools.ts";
 
-const help = `googlehealth-mcp ${packageJson.version}
+const help = `mcp-google-health ${packageJson.version}
 
 Usage:
-  googlehealth-mcp                 Run the MCP server on stdio.
-  googlehealth-mcp auth [options]  Sign in to Google and save credentials.
+  mcp-google-health                 Run the MCP server on stdio.
+  mcp-google-health auth [options]  Sign in to Google and save credentials.
 
 Auth options:
   --client-secrets <file>  OAuth client JSON from Google Cloud (Desktop app). Required.
@@ -27,7 +27,7 @@ Auth options:
   --port <port>            Loopback port for the Google redirect. Default: a free port.
 
 Credentials path: $GOOGLE_HEALTH_CREDENTIALS, else $GOOGLE_APPLICATION_CREDENTIALS,
-else ~/.config/googlehealth-mcp/credentials.json.`;
+else ~/.config/mcp-google-health/credentials.json.`;
 
 async function main(argv: string[]): Promise<void> {
   const [command, ...rest] = argv;
