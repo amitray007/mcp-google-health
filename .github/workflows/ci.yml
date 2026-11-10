@@ -4,12 +4,21 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  MISE_VERSION: 2026.11.5
+
 jobs:
-  check:
+  spec:
+    name: Spec
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -17,7 +26,81 @@ jobs:
         with:
           persist-credentials: false
       - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
+        with:
+          version: ${{ env.MISE_VERSION }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm check
-      - run: pnpm build
-      - run: node dist/src/cli.js --help
+      - run: mise run check:spec
+
+  typescript:
+    name: TypeScript (Node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        node: ["22", "24"]
+        include:
+          - os: macos-15
+            node: "24"
+    env:
+      MISE_NODE_VERSION: ${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
+        with:
+          version: ${{ env.MISE_VERSION }}
+      - run: pnpm install --frozen-lockfile
+      - run: mise run check:ts
+      - name: Install the packed tarball and run it
+        run: node scripts/smoke-npm.ts
+
+  python:
+    name: Python ${{ matrix.python }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-15
+            python: "3.13"
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
+        with:
+          version: ${{ env.MISE_VERSION }}
+      - run: mise run check:py
+      - name: Install the built wheel and run it
+        run: node scripts/smoke-python.ts
+
+  e2e:
+    name: End-to-end parity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
+        with:
+          version: ${{ env.MISE_VERSION }}
+      - run: pnpm install --frozen-lockfile
+      - run: mise run test:e2e
+
+  ci-ok:
+    name: CI passed
+    if: always()
+    needs: [spec, typescript, python, e2e]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fail when any job failed
+        run: test "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "false"

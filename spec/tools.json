@@ -1,0 +1,727 @@
+{
+  "$schema": "./schema/tools.schema.json",
+  "server": {
+    "name": "mcp-google-health",
+    "instructions": "Reads and writes Google Health (Fitbit, Pixel Watch) data through the Google Health API v4. Start with list_data_types, then list_data_points, reconcile_data_points, or the roll-up tools. Use describe_schema before a write."
+  },
+  "$defs": {
+    "dataType": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Data type in kebab case, such as steps, sleep, or heart-rate. See list_data_types."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^(?!\\.{1,2}$)[A-Za-z0-9._~-]+$",
+      "description": "A resource ID without slashes. Not . or .."
+    },
+    "apiVersion": {
+      "type": "string",
+      "enum": ["v4", "v4beta"],
+      "description": "API version. Defaults to v4, or v4beta for beta-only data types."
+    },
+    "dataSourceFamily": {
+      "type": "string",
+      "enum": ["all-sources", "google-wearables", "google-sources", "self-sources"],
+      "description": "Data sources: all-sources (default), google-wearables (Fitbit and Pixel devices only), google-sources (Google devices, manual logs, Health Connect), or self-sources (data this client wrote)."
+    },
+    "filter": {
+      "type": "string",
+      "description": "AIP-160 filter on the data type's time field, in snake case."
+    },
+    "pageSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "pageToken": {
+      "type": "string",
+      "description": "nextPageToken from the previous response."
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$",
+      "description": "RFC 3339 timestamp."
+    },
+    "civilDate": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "Civil date in the user's time zone, YYYY-MM-DD."
+    },
+    "dataPoint": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "DataPoint body. Put the payload under the camelCase data type field, such as {\"weight\": {...}}. Call describe_schema with the data type for its fields."
+    },
+    "updateMask": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Comma-separated field paths to change."
+    }
+  },
+  "tools": [
+    {
+      "name": "list_data_types",
+      "description": "List every Google Health data type with its kind, scope family, supported operations, and whether it needs v4beta.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "local": "listDataTypes"
+    },
+    {
+      "name": "describe_schema",
+      "description": "Show the JSON schema of a data type payload (such as weight or sleep) or an API schema (such as Profile, Settings, PairedDevice, DataPoint).",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Data type slug or schema name."
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "local": "describeSchema"
+    },
+    {
+      "name": "get_identity",
+      "description": "Get the user's Google Health identity and numeric health user ID.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/identity"
+      }
+    },
+    {
+      "name": "get_profile",
+      "description": "Get the user's health profile: age, stride lengths, membership start.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/profile"
+      }
+    },
+    {
+      "name": "get_settings",
+      "description": "Get the user's settings, such as units and time zone.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/settings"
+      }
+    },
+    {
+      "name": "get_irn_profile",
+      "description": "Get the user's irregular rhythm notification (IRN) enrollment profile.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/irnProfile"
+      }
+    },
+    {
+      "name": "update_profile",
+      "description": "Update profile fields. Name each changed field in updateMask.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Profile fields. See describe_schema Profile."
+          },
+          "updateMask": {
+            "$ref": "#/$defs/updateMask"
+          }
+        },
+        "required": ["profile", "updateMask"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "PATCH",
+        "path": "users/me/profile",
+        "query": {
+          "updateMask": {
+            "arg": "updateMask"
+          }
+        },
+        "body": {
+          "arg": "profile"
+        }
+      }
+    },
+    {
+      "name": "update_settings",
+      "description": "Update settings fields. Name each changed field in updateMask.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Settings fields. See describe_schema Settings."
+          },
+          "updateMask": {
+            "$ref": "#/$defs/updateMask"
+          }
+        },
+        "required": ["settings", "updateMask"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "PATCH",
+        "path": "users/me/settings",
+        "query": {
+          "updateMask": {
+            "arg": "updateMask"
+          }
+        },
+        "body": {
+          "arg": "settings"
+        }
+      }
+    },
+    {
+      "name": "list_paired_devices",
+      "description": "List the user's paired devices with battery level, battery status, firmware version, features, and last sync time.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "$ref": "#/$defs/pageSize"
+          },
+          "pageToken": {
+            "$ref": "#/$defs/pageToken"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/pairedDevices",
+        "query": {
+          "pageSize": {
+            "arg": "pageSize"
+          },
+          "pageToken": {
+            "arg": "pageToken"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_paired_device",
+      "description": "Get one paired device.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required": ["deviceId"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/pairedDevices/{deviceId}"
+      }
+    },
+    {
+      "name": "list_data_points",
+      "description": "List raw data points of one data type, newest first. Filter with AIP-160 on the type's time field, for example steps.interval.civil_start_time >= \"2026-11-01\", weight.sample_time.physical_time >= \"2026-11-01T00:00:00Z\", daily_resting_heart_rate.date >= \"2026-11-01\", or sleep.interval.civil_end_time >= \"2026-11-01\". Use snake case in filters.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "filter": {
+            "$ref": "#/$defs/filter"
+          },
+          "dataSourceFamily": {
+            "$ref": "#/$defs/dataSourceFamily"
+          },
+          "pageSize": {
+            "$ref": "#/$defs/pageSize"
+          },
+          "pageToken": {
+            "$ref": "#/$defs/pageToken"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/dataTypes/{dataType}/dataPoints",
+        "versioned": true,
+        "query": {
+          "filter": {
+            "arg": "filter"
+          },
+          "dataSourceFamily": {
+            "arg": "dataSourceFamily",
+            "format": "sourceFamily"
+          },
+          "pageSize": {
+            "arg": "pageSize"
+          },
+          "pageToken": {
+            "arg": "pageToken"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_data_point",
+      "description": "Get one identifiable data point, such as an exercise, sleep session, weight, or log entry.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "dataPointId": {
+            "$ref": "#/$defs/id"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "dataPointId"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/dataTypes/{dataType}/dataPoints/{dataPointId}",
+        "versioned": true
+      }
+    },
+    {
+      "name": "reconcile_data_points",
+      "description": "List data points merged across sources into one de-duplicated stream, as the Google Health app shows them. Takes the same filters as list_data_points. Use this for sleep across sources.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "filter": {
+            "$ref": "#/$defs/filter"
+          },
+          "dataSourceFamily": {
+            "$ref": "#/$defs/dataSourceFamily"
+          },
+          "pageSize": {
+            "$ref": "#/$defs/pageSize"
+          },
+          "pageToken": {
+            "$ref": "#/$defs/pageToken"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/dataTypes/{dataType}/dataPoints:reconcile",
+        "versioned": true,
+        "query": {
+          "filter": {
+            "arg": "filter"
+          },
+          "dataSourceFamily": {
+            "arg": "dataSourceFamily",
+            "format": "sourceFamily"
+          },
+          "pageSize": {
+            "arg": "pageSize"
+          },
+          "pageToken": {
+            "arg": "pageToken"
+          }
+        }
+      }
+    },
+    {
+      "name": "roll_up_data_points",
+      "description": "Aggregate a data type into fixed physical-time windows, such as hourly steps or 5-minute heart rate. Range is closed-open; at most 14 days for heart-rate, active-minutes, total-calories, and calories-in-heart-rate-zone, 90 days otherwise.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "startTime": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "endTime": {
+            "$ref": "#/$defs/timestamp"
+          },
+          "windowSize": {
+            "type": "string",
+            "pattern": "^[0-9]+(\\.[0-9]+)?s$",
+            "description": "Window length in seconds with an s suffix, such as 3600s."
+          },
+          "dataSourceFamily": {
+            "$ref": "#/$defs/dataSourceFamily"
+          },
+          "pageSize": {
+            "$ref": "#/$defs/pageSize"
+          },
+          "pageToken": {
+            "$ref": "#/$defs/pageToken"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "startTime", "endTime", "windowSize"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "POST",
+        "path": "users/me/dataTypes/{dataType}/dataPoints:rollUp",
+        "versioned": true,
+        "body": {
+          "range": {
+            "startTime": {
+              "arg": "startTime"
+            },
+            "endTime": {
+              "arg": "endTime"
+            }
+          },
+          "windowSize": {
+            "arg": "windowSize"
+          },
+          "dataSourceFamily": {
+            "arg": "dataSourceFamily",
+            "format": "sourceFamily"
+          },
+          "pageSize": {
+            "arg": "pageSize"
+          },
+          "pageToken": {
+            "arg": "pageToken"
+          }
+        }
+      }
+    },
+    {
+      "name": "daily_roll_up_data_points",
+      "description": "Aggregate a data type into civil-day windows in the user's time zone, such as daily steps or calories. endDate is exclusive. At most 14 days for heart-rate, active-minutes, total-calories, and calories-in-heart-rate-zone, 90 days otherwise.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "startDate": {
+            "$ref": "#/$defs/civilDate"
+          },
+          "endDate": {
+            "$ref": "#/$defs/civilDate"
+          },
+          "windowSizeDays": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Days per window. Default 1."
+          },
+          "dataSourceFamily": {
+            "$ref": "#/$defs/dataSourceFamily"
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90
+          },
+          "pageToken": {
+            "$ref": "#/$defs/pageToken"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "startDate", "endDate"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "POST",
+        "path": "users/me/dataTypes/{dataType}/dataPoints:dailyRollUp",
+        "versioned": true,
+        "body": {
+          "range": {
+            "start": {
+              "arg": "startDate",
+              "format": "civilDateTime"
+            },
+            "end": {
+              "arg": "endDate",
+              "format": "civilDateTime"
+            }
+          },
+          "windowSizeDays": {
+            "arg": "windowSizeDays"
+          },
+          "dataSourceFamily": {
+            "arg": "dataSourceFamily",
+            "format": "sourceFamily"
+          },
+          "pageSize": {
+            "arg": "pageSize"
+          },
+          "pageToken": {
+            "arg": "pageToken"
+          }
+        }
+      }
+    },
+    {
+      "name": "export_exercise_tcx",
+      "description": "Export one exercise as TCX with GPS track, heart rate, and laps. Needs the location scope. Give outputPath to save the file instead of returning the TCX text.",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "$ref": "#/$defs/id",
+            "description": "The exercise data point ID."
+          },
+          "partialData": {
+            "type": "boolean",
+            "description": "Include data points when the exercise has no GPS data."
+          },
+          "outputPath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "File path for the TCX file."
+          }
+        },
+        "required": ["exerciseId"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "GET",
+        "path": "users/me/dataTypes/exercise/dataPoints/{exerciseId}:exportExerciseTcx",
+        "query": {
+          "partialData": {
+            "arg": "partialData"
+          }
+        }
+      },
+      "response": {
+        "saveField": "tcxData",
+        "pathArg": "outputPath"
+      }
+    },
+    {
+      "name": "create_data_point",
+      "description": "Write a new data point, such as a weight, body fat, height, sleep, exercise, hydration or nutrition log, mood, symptom, menstrual period, or ovulation test. Needs the matching write scope.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "dataPoint": {
+            "$ref": "#/$defs/dataPoint"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "dataPoint"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "POST",
+        "path": "users/me/dataTypes/{dataType}/dataPoints",
+        "versioned": true,
+        "body": {
+          "arg": "dataPoint"
+        }
+      }
+    },
+    {
+      "name": "update_data_point",
+      "description": "Replace a data point that this client wrote.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "dataPointId": {
+            "$ref": "#/$defs/id"
+          },
+          "dataPoint": {
+            "$ref": "#/$defs/dataPoint"
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "dataPointId", "dataPoint"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "PATCH",
+        "path": "users/me/dataTypes/{dataType}/dataPoints/{dataPointId}",
+        "versioned": true,
+        "body": {
+          "arg": "dataPoint"
+        }
+      }
+    },
+    {
+      "name": "delete_data_points",
+      "description": "Delete up to 10000 data points of one data type that this client wrote.",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "$ref": "#/$defs/dataType"
+          },
+          "dataPointIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/id"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "apiVersion": {
+            "$ref": "#/$defs/apiVersion"
+          }
+        },
+        "required": ["dataType", "dataPointIds"],
+        "additionalProperties": false
+      },
+      "request": {
+        "method": "POST",
+        "path": "users/me/dataTypes/{dataType}/dataPoints:batchDelete",
+        "versioned": true,
+        "body": {
+          "names": {
+            "arg": "dataPointIds",
+            "format": "dataPointNames"
+          }
+        }
+      }
+    }
+  ]
+}

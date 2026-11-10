@@ -1,5 +1,11 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 100,
-  "ignorePatterns": ["docs/**", "mise.lock", "pnpm-lock.yaml"]
+  "ignorePatterns": [
+    "mise.lock",
+    "pnpm-lock.yaml",
+    "packages/python/**",
+    "**/spec/discovery.json",
+    "CHANGELOG.md"
+  ]
 }

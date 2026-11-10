@@ -10,5 +10,25 @@
     "reportUnusedDisableDirectives": "error",
     "typeAware": true
   },
-  "ignorePatterns": ["dist/**"]
+  "ignorePatterns": ["**/dist/**", "packages/python/**"],
+  "overrides": [
+    {
+      "files": ["scripts/**", "tests/**"],
+      "rules": {
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
+    {
+      "files": ["tests/**"],
+      "rules": {
+        "vitest/no-conditional-expect": "off",
+        "vitest/valid-expect": [
+          "error",
+          {
+            "maxArgs": 2
+          }
+        ]
+      }
+    }
+  ]
 }

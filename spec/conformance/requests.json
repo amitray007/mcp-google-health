@@ -1,0 +1,587 @@
+{
+  "$schema": "../schema/conformance.schema.json",
+  "cases": [
+    {
+      "name": "identity",
+      "tool": "get_identity",
+      "arguments": {},
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/identity",
+          "query": {}
+        }
+      },
+      "apiResponse": {
+        "name": "users/me/identity",
+        "healthUserId": "123"
+      }
+    },
+    {
+      "name": "profile",
+      "tool": "get_profile",
+      "arguments": {},
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/profile",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "settings",
+      "tool": "get_settings",
+      "arguments": {},
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/settings",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "irn profile",
+      "tool": "get_irn_profile",
+      "arguments": {},
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/irnProfile",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "update profile",
+      "tool": "update_profile",
+      "arguments": {
+        "profile": {
+          "userConfiguredWalkingStrideLengthMm": 750
+        },
+        "updateMask": "userConfiguredWalkingStrideLengthMm"
+      },
+      "expect": {
+        "request": {
+          "method": "PATCH",
+          "path": "/v4/users/me/profile",
+          "query": {
+            "updateMask": "userConfiguredWalkingStrideLengthMm"
+          },
+          "body": {
+            "userConfiguredWalkingStrideLengthMm": 750
+          }
+        }
+      }
+    },
+    {
+      "name": "update settings",
+      "tool": "update_settings",
+      "arguments": {
+        "settings": {
+          "timeZone": "Asia/Kolkata"
+        },
+        "updateMask": "timeZone"
+      },
+      "expect": {
+        "request": {
+          "method": "PATCH",
+          "path": "/v4/users/me/settings",
+          "query": {
+            "updateMask": "timeZone"
+          },
+          "body": {
+            "timeZone": "Asia/Kolkata"
+          }
+        }
+      }
+    },
+    {
+      "name": "paired devices default",
+      "tool": "list_paired_devices",
+      "arguments": {},
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/pairedDevices",
+          "query": {}
+        }
+      },
+      "apiResponse": {
+        "pairedDevices": [
+          {
+            "name": "users/me/pairedDevices/abc",
+            "batteryLevel": 80
+          }
+        ]
+      }
+    },
+    {
+      "name": "paired devices paged",
+      "tool": "list_paired_devices",
+      "arguments": {
+        "pageSize": 10,
+        "pageToken": "t1"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/pairedDevices",
+          "query": {
+            "pageSize": "10",
+            "pageToken": "t1"
+          }
+        }
+      }
+    },
+    {
+      "name": "paired device",
+      "tool": "get_paired_device",
+      "arguments": {
+        "deviceId": "abc-123"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/pairedDevices/abc-123",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "list minimal",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/steps/dataPoints",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "list full",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "filter": "steps.interval.civil_start_time >= \"2026-11-01\"",
+        "dataSourceFamily": "google-wearables",
+        "pageSize": 100,
+        "pageToken": "next"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/steps/dataPoints",
+          "query": {
+            "filter": "steps.interval.civil_start_time >= \"2026-11-01\"",
+            "dataSourceFamily": "users/me/dataSourceFamilies/google-wearables",
+            "pageSize": "100",
+            "pageToken": "next"
+          }
+        }
+      }
+    },
+    {
+      "name": "list beta type routes to v4beta",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "skin-temperature-sensors"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4beta/users/me/dataTypes/skin-temperature-sensors/dataPoints",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "explicit version wins",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "apiVersion": "v4beta"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4beta/users/me/dataTypes/steps/dataPoints",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "unknown type passes through to v4",
+      "tool": "list_data_points",
+      "arguments": {
+        "dataType": "future-type"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/future-type/dataPoints",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "get point",
+      "tool": "get_data_point",
+      "arguments": {
+        "dataType": "exercise",
+        "dataPointId": "ex_1"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/exercise/dataPoints/ex_1",
+          "query": {}
+        }
+      }
+    },
+    {
+      "name": "reconcile",
+      "tool": "reconcile_data_points",
+      "arguments": {
+        "dataType": "sleep",
+        "filter": "sleep.interval.civil_end_time >= \"2026-11-01\"",
+        "dataSourceFamily": "all-sources"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/sleep/dataPoints:reconcile",
+          "query": {
+            "filter": "sleep.interval.civil_end_time >= \"2026-11-01\"",
+            "dataSourceFamily": "users/me/dataSourceFamilies/all-sources"
+          }
+        }
+      }
+    },
+    {
+      "name": "roll up",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "heart-rate",
+        "startTime": "2026-11-01T00:00:00Z",
+        "endTime": "2026-11-02T00:00:00Z",
+        "windowSize": "300s"
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/heart-rate/dataPoints:rollUp",
+          "query": {},
+          "body": {
+            "range": {
+              "startTime": "2026-11-01T00:00:00Z",
+              "endTime": "2026-11-02T00:00:00Z"
+            },
+            "windowSize": "300s"
+          }
+        }
+      }
+    },
+    {
+      "name": "roll up full",
+      "tool": "roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startTime": "2026-11-01T00:00:00+05:30",
+        "endTime": "2026-11-02T00:00:00+05:30",
+        "windowSize": "3600s",
+        "dataSourceFamily": "google-sources",
+        "pageSize": 24,
+        "pageToken": "p"
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/steps/dataPoints:rollUp",
+          "query": {},
+          "body": {
+            "range": {
+              "startTime": "2026-11-01T00:00:00+05:30",
+              "endTime": "2026-11-02T00:00:00+05:30"
+            },
+            "windowSize": "3600s",
+            "dataSourceFamily": "users/me/dataSourceFamilies/google-sources",
+            "pageSize": 24,
+            "pageToken": "p"
+          }
+        }
+      }
+    },
+    {
+      "name": "daily roll up",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "total-calories",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-08"
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/total-calories/dataPoints:dailyRollUp",
+          "query": {},
+          "body": {
+            "range": {
+              "start": {
+                "date": {
+                  "year": 2026,
+                  "month": 11,
+                  "day": 1
+                }
+              },
+              "end": {
+                "date": {
+                  "year": 2026,
+                  "month": 11,
+                  "day": 8
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "daily roll up full",
+      "tool": "daily_roll_up_data_points",
+      "arguments": {
+        "dataType": "steps",
+        "startDate": "2026-01-05",
+        "endDate": "2026-02-04",
+        "windowSizeDays": 7,
+        "dataSourceFamily": "self-sources",
+        "pageSize": 5,
+        "pageToken": "q"
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/steps/dataPoints:dailyRollUp",
+          "query": {},
+          "body": {
+            "range": {
+              "start": {
+                "date": {
+                  "year": 2026,
+                  "month": 1,
+                  "day": 5
+                }
+              },
+              "end": {
+                "date": {
+                  "year": 2026,
+                  "month": 2,
+                  "day": 4
+                }
+              }
+            },
+            "windowSizeDays": 7,
+            "dataSourceFamily": "users/me/dataSourceFamilies/self-sources",
+            "pageSize": 5,
+            "pageToken": "q"
+          }
+        }
+      }
+    },
+    {
+      "name": "tcx inline",
+      "tool": "export_exercise_tcx",
+      "arguments": {
+        "exerciseId": "ex_1",
+        "partialData": true
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/exercise/dataPoints/ex_1:exportExerciseTcx",
+          "query": {
+            "partialData": "true"
+          }
+        }
+      },
+      "apiResponse": {
+        "tcxData": "<TrainingCenterDatabase/>"
+      }
+    },
+    {
+      "name": "create",
+      "tool": "create_data_point",
+      "arguments": {
+        "dataType": "weight",
+        "dataPoint": {
+          "weight": {
+            "weightGrams": 70000,
+            "sampleTime": {
+              "physicalTime": "2026-11-10T07:00:00Z"
+            }
+          }
+        }
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/weight/dataPoints",
+          "query": {},
+          "body": {
+            "weight": {
+              "weightGrams": 70000,
+              "sampleTime": {
+                "physicalTime": "2026-11-10T07:00:00Z"
+              }
+            }
+          }
+        }
+      },
+      "apiResponse": {
+        "name": "operations/1",
+        "done": true
+      }
+    },
+    {
+      "name": "update",
+      "tool": "update_data_point",
+      "arguments": {
+        "dataType": "weight",
+        "dataPointId": "w1",
+        "dataPoint": {
+          "weight": {
+            "weightGrams": 71000
+          }
+        }
+      },
+      "expect": {
+        "request": {
+          "method": "PATCH",
+          "path": "/v4/users/me/dataTypes/weight/dataPoints/w1",
+          "query": {},
+          "body": {
+            "weight": {
+              "weightGrams": 71000
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "delete",
+      "tool": "delete_data_points",
+      "arguments": {
+        "dataType": "weight",
+        "dataPointIds": ["a1", "b2"]
+      },
+      "expect": {
+        "request": {
+          "method": "POST",
+          "path": "/v4/users/me/dataTypes/weight/dataPoints:batchDelete",
+          "query": {},
+          "body": {
+            "names": [
+              "users/me/dataTypes/weight/dataPoints/a1",
+              "users/me/dataTypes/weight/dataPoints/b2"
+            ]
+          }
+        }
+      },
+      "apiResponse": {}
+    },
+    {
+      "name": "tcx saved to file",
+      "tool": "export_exercise_tcx",
+      "arguments": {
+        "exerciseId": "ex_2",
+        "outputPath": "{tmpdir}/run.tcx"
+      },
+      "apiResponse": {
+        "tcxData": "<TrainingCenterDatabase>é</TrainingCenterDatabase>"
+      },
+      "expect": {
+        "request": {
+          "method": "GET",
+          "path": "/v4/users/me/dataTypes/exercise/dataPoints/ex_2:exportExerciseTcx",
+          "query": {}
+        },
+        "result": {
+          "outputPath": "{tmpdir}/run.tcx",
+          "bytes": 51
+        },
+        "file": {
+          "path": "{tmpdir}/run.tcx",
+          "content": "<TrainingCenterDatabase>é</TrainingCenterDatabase>"
+        }
+      }
+    },
+    {
+      "name": "describe data type",
+      "tool": "describe_schema",
+      "arguments": {
+        "name": "weight"
+      },
+      "expect": {
+        "resultSubset": {
+          "id": "Weight",
+          "properties": {
+            "sampleTime": {
+              "properties": {
+                "physicalTime": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "describe roll-up-only type",
+      "tool": "describe_schema",
+      "arguments": {
+        "name": "total-calories"
+      },
+      "expect": {
+        "resultSubset": {
+          "id": "TotalCaloriesRollupValue"
+        }
+      }
+    },
+    {
+      "name": "describe api schema",
+      "tool": "describe_schema",
+      "arguments": {
+        "name": "PairedDevice"
+      },
+      "expect": {
+        "resultSubset": {
+          "id": "PairedDevice",
+          "properties": {
+            "batteryLevel": {}
+          }
+        }
+      }
+    },
+    {
+      "name": "list data types",
+      "tool": "list_data_types",
+      "arguments": {},
+      "expect": {
+        "resultSubset": {
+          "dataTypes": [
+            {
+              "slug": "active-energy-burned",
+              "kind": "Interval"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

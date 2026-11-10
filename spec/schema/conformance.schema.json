@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Conformance cases",
+  "type": "object",
+  "required": ["cases"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "tool", "arguments"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tool": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "apiResponse": {},
+          "api": {
+            "type": "object",
+            "required": ["status"],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "integer"
+              },
+              "body": {},
+              "text": {
+                "type": "string"
+              }
+            }
+          },
+          "token": {
+            "type": "object",
+            "required": ["status", "body"],
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "type": "integer"
+              },
+              "body": {}
+            }
+          },
+          "credentials": {
+            "enum": ["missing", "malformed"]
+          },
+          "expect": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "request": {
+                "type": "object",
+                "required": ["method", "path", "query"],
+                "additionalProperties": false,
+                "properties": {
+                  "method": {
+                    "enum": ["GET", "POST", "PATCH"]
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "body": {}
+                }
+              },
+              "result": {},
+              "resultSubset": {},
+              "text": {
+                "type": "string"
+              },
+              "file": {
+                "type": "object",
+                "required": ["path", "content"],
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

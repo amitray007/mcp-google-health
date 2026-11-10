@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "versioning": "always-bump-patch",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "package-name": "mcp-google-health",
+      "extra-files": [
+        { "type": "json", "path": "packages/typescript/package.json", "jsonpath": "$.version" },
+        {
+          "type": "toml",
+          "path": "packages/python/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
+          "path": "packages/python/uv.lock",
+          "jsonpath": "$.package[?(@.name=='mcp-google-health')].version"
+        }
+      ]
+    }
+  }
+}

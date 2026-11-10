@@ -1,3 +1,5 @@
+packages:
+  - packages/typescript
 minimumReleaseAge: 1440
 minimumReleaseAgeStrict: true
 saveExact: true

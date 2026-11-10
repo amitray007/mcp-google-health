@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OAuth scopes",
+  "type": "object",
+  "required": ["source", "prefix", "read", "write", "discoveryOnly"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "prefix": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "read": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+\\.readonly$"
+      }
+    },
+    "write": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+\\.writeonly$"
+      }
+    },
+    "discoveryOnly": {
+      "description": "Scopes in Google's discovery document but not on the scopes page. auth requests them only through --scope.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+\\.(readonly|writeonly)$"
+      }
+    }
+  }
+}

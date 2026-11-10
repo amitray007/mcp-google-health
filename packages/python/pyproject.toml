@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-google-health"
+version = "0.0.0"
+description = "Google Health API tools for MCP clients"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+classifiers = [
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "mcp>=2.3.0,<3",
+  "httpx>=0.28.1,<1",
+  "google-auth-oauthlib>=1.5.0,<2",
+  "pydantic>=2.11.0,<3",
+  "jsonschema>=4.25.0,<5",
+]
+
+[project.urls]
+Homepage = "https://github.com/amitray007/mcp-google-health"
+Repository = "https://github.com/amitray007/mcp-google-health"
+Issues = "https://github.com/amitray007/mcp-google-health/issues"
+
+[project.scripts]
+mcp-google-health = "mcp_google_health.cli:main"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.14.0",
+  "pyright>=1.1.400",
+  "pytest>=8.4.0",
+  "pytest-cov>=6.2.0",
+  "types-jsonschema>=4.25.0",
+]
+
+[tool.uv]
+exclude-newer = "1 day"
+
+[tool.hatch.build]
+artifacts = ["src/mcp_google_health/spec/*.json"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_google_health"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "pyproject.toml", "README.md", "LICENSE", "uv.lock"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S", "ANN", "PT"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+
+[tool.pyright]
+include = ["src", "tests"]
+typeCheckingMode = "strict"
+pythonVersion = "3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=mcp_google_health --cov-report=term-missing --cov-fail-under=90"

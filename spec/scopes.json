@@ -1,0 +1,32 @@
+{
+  "$schema": "./schema/scopes.schema.json",
+  "source": "https://developers.google.com/health/scopes",
+  "prefix": "https://www.googleapis.com/auth/googlehealth.",
+  "read": [
+    "activity_and_fitness.readonly",
+    "ecg.readonly",
+    "health_metrics_and_measurements.readonly",
+    "irn.readonly",
+    "location.readonly",
+    "nutrition.readonly",
+    "profile.readonly",
+    "settings.readonly",
+    "sleep.readonly"
+  ],
+  "write": [
+    "activity_and_fitness.writeonly",
+    "health_metrics_and_measurements.writeonly",
+    "logged_symptoms.writeonly",
+    "mindfulness.writeonly",
+    "nutrition.writeonly",
+    "profile.writeonly",
+    "reproductive_health.writeonly",
+    "settings.writeonly",
+    "sleep.writeonly"
+  ],
+  "discoveryOnly": [
+    "logged_symptoms.readonly",
+    "mindfulness.readonly",
+    "reproductive_health.readonly"
+  ]
+}

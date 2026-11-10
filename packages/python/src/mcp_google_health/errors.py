@@ -1,0 +1,2 @@
+class HealthError(Exception):
+    pass
